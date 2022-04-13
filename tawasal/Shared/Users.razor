@@ -1,0 +1,47 @@
+﻿@page "/users"
+@using Microsoft.AspNetCore.Authorization
+@using System.Net.Http
+@using tawasal.Model
+@using tawasal.Storage
+@attribute [Authorize]
+
+@inject AppDataService service
+
+<AuthorizeView>
+    <Authorized>
+@if (service.GetUsers() != null)
+{
+    <table class="table table-striped">
+        <tbody>
+            @foreach (UserPreviewModel user in service.GetUsers().data)
+            {
+                <tr>
+                    <td class="col-lg-2 col-md-2 col-sm-2 col-xl-2"><img width=50px class="img-fluid img-thumbnail" src="@user.picture"/></td>
+                    <td class="col-lg-10 col-md-10 col-sm-10 col-xl-10"><a href="/posts?userid=@user.id">@user.title @user.firstName @user.lastName</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+} 
+else
+{
+    <p>Loading...</p>
+}
+    </Authorized>
+    <NotAuthorized>
+        Not authorize. Please <a href="/login">Log in</a>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.FromResult<UserServiceData>(service.GetUsers());
+        service.OnGetUserData += new EventHandler(OnGetUserData);
+    }
+
+    void OnGetUserData(object sender, EventArgs e)
+    {
+        StateHasChanged();
+    }
+}

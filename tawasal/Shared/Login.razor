@@ -1,0 +1,27 @@
+﻿@page "/login"
+@using tawasal.Model
+@using tawasal.Storage
+@inherits LoginModel
+
+<div class="row">
+    <div class="col-md-6">
+        <EditForm Model="@loginData" OnValidSubmit="loginAsync">
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+            <ValidationSummary></ValidationSummary>
+            <label for="username">Username:</label>
+            <InputText id="username" @bind-Value="loginData.UserName" class="form-control"></InputText>
+            <label for="password">Password:</label>
+            <InputText id="password" @bind-Value="loginData.Password" class="form-control"></InputText>
+            <br />
+            <button type="submit" class="btn btn-primary">Log in</button>
+
+        </EditForm>
+    </div>
+</div>
+
+@code {
+
+/*
+ * @inject TokenAuthenticationStateProvider tokenAuthenticationStateProvider
+ * */    
+}

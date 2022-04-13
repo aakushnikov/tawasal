@@ -1,0 +1,66 @@
+﻿@page "/posts"
+@using Microsoft.AspNetCore.Authorization
+@using System.Net.Http
+@using tawasal.Model
+@using tawasal.Storage
+@attribute [Authorize]
+
+@inject AppDataService service
+
+<AuthorizeView>
+    <Authorized>
+@if (service.GetUserPosts(id) != null)
+{
+    <table class="table table-striped">
+        <tbody>
+            @foreach (UserPostPreviewModel post in service.GetUserPosts(id).data)
+            {
+                <tr>
+                    <td class="col-lg-2 col-md-2 col-sm-2 col-xl-2"><img class="img-fluid img-thumbnail" width="100px" src="@post.image"/></td>
+                    <td class="col-lg-10 col-md-10 col-sm-10 col-xl-10">@post.text</td>
+                </tr>
+                <tr>
+                    <td class="col-lg-2 col-md-2 col-sm-2 col-xl-2">&nbsp;</td>
+                    <td class="col-lg-10 col-md-10 col-sm-10 col-xl-10">
+                                <span class="small"><b>Published:</b> <b>@post.publishDate Likes:</b> @post.likes <b>Tags:</b>
+                                    @foreach (var tag in @post.tags) {
+                                        <span>&nbsp;</span>
+                                        @tag
+                                    }
+                                </span>
+                            </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+} 
+else
+{
+    <p>Loading...</p>
+}
+    </Authorized>
+    <NotAuthorized>
+        Not authorize. Please <a href="/login">Log in</a>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    [Inject] NavigationManager navigationManager { get; set; }
+    string id = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        System.Collections.Specialized.NameValueCollection pairs =
+            System.Web.HttpUtility.ParseQueryString(navigationManager.Uri.Substring(navigationManager.Uri.IndexOf("?")));
+        id = pairs["userid"];
+
+        await Task.FromResult<UserPostServiceData>(service.GetUserPosts(id));
+        service.OnGetUserPostsData += new EventHandler(OnGetUserPostsData);
+    }
+
+    void OnGetUserPostsData(object sender, EventArgs e)
+    {
+        if (((PostEventArgs)e).Id == id)
+            StateHasChanged();
+    }
+}
